@@ -1,0 +1,21 @@
+{% load static bulma_tags %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{% endblock title %}</title>
+  {% block css %}
+    {% font_awesome %}
+    <link rel="stylesheet" href="{% static 'bulma/css/style.min.css' %}">
+    {% block extra_css %}{% endblock extra_css %}
+  {% endblock css %}
+</head>
+<body>
+  {% block content %}
+  {% endblock content %}
+{% block javascript %}
+  {% block extra_javascript %}{% endblock extra_javascript %}
+{% endblock javascript %}
+</body>
+</html>

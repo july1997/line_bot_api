@@ -1,0 +1,31 @@
+{% extends 'mybase.html' %}
+
+{% block title %}ミクアカBot{% endblock %}
+
+{% block content %}
+  <section class="hero">
+    <div class="hero-body">
+      <div class="container">
+        <h1 class="title">
+          ミクアカBot
+        </h1>
+        <h2 class="subtitle">
+          使い方
+        </h2>
+        <div>
+          <a href="line://ti/p/@749xkwne">
+            {% load static %}
+            <img src="{% static "qr.png" %}">
+          </a>
+          <p>
+            1. PCではLINEで上のQRコードを開き、友だちに追加します。
+            スマホでは上のQRコードをタップして、「ミクアカBot」を友だちに追加します。
+          </p>
+          <p>
+            2. たくさん話しかけます。（返答が遅いのは仕様です）
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock content %}
