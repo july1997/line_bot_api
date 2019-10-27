@@ -1,4 +1,5 @@
 from api.seq2seq import Seq2Seq
+from api.apikey import LINE_CHANNEL_SECRET, LINE_CHANNEL_ACCESS_TOKEN
 from django.http import HttpResponseForbidden, HttpResponse
 from linebot import LineBotApi, WebhookHandler
 from linebot.exceptions import InvalidSignatureError, LineBotApiError
@@ -9,12 +10,9 @@ from linebot.models import (
 # csrf 検証無効化
 from django.views.decorators.csrf import csrf_exempt
 
-channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
-channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
-
 # 各クライアントライブラリのインスタンス作成
-line_bot_api = LineBotApi(channel_access_token=channel_access_token)
-handler = WebhookHandler(channel_secret=channel_secret)
+line_bot_api = LineBotApi(channel_access_token=LINE_CHANNEL_ACCESS_TOKEN)
+handler = WebhookHandler(channel_secret=LINE_CHANNEL_SECRET)
 
 # Seq2Seq モデル
 model = Seq2Seq()
