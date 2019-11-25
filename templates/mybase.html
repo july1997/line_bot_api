@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="{% static 'bulma/css/style.min.css' %}">
     {% block extra_css %}{% endblock extra_css %}
   {% endblock css %}
+  {% load static %}
+  <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
 </head>
 <body>
   {% block content %}
