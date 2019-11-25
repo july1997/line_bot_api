@@ -10,6 +10,9 @@ from linebot.models import (
 # csrf 検証無効化
 from django.views.decorators.csrf import csrf_exempt
 
+import logging
+logger = logging.getLogger("api")
+
 # 各クライアントライブラリのインスタンス作成
 line_bot_api = LineBotApi(channel_access_token=LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(channel_secret=LINE_CHANNEL_SECRET)
@@ -47,11 +50,21 @@ def handle_follow(event):
 # メッセージイベントの場合の処理
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
-    
-    text = model.predict(text=event.message.text)
-
+    text = ""
+    if not model.isPredicting():
+        text = model.predict(text=event.message.text)
+    else:
+        return HttpResponseForbidden()
+        
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=text)
     )
 
+@csrf_exempt
+def chat(request):
+    logger.info(request.POST['text'])
+    text = request.POST['text']
+    if not text is None and not model.isPredicting():
+        return HttpResponse(model.predict(text=text), content_type="text/plain")
+    return HttpResponseForbidden()
