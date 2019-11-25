@@ -18,6 +18,7 @@ new Vue({
         submit: function() {
             if(this.checked && this.input.replace(/[\r?\n]*\s+/g, '') != ''){
                 this.list.push({ user: 'あなた', message: this.input.replace(/[\r?\n]*\s+/g, '') })
+                this.getApi()
                 this.input = ''
                 this.checkList()
             }
