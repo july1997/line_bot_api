@@ -17,6 +17,8 @@ class Seq2Seq:
         self.enc_export_path = '/home/ubuntu/work/export_enc'
         self.dec_export_path = '/home/ubuntu/work/export_dec'
         self.MAX_LENGH = 170
+        # 一度に複数回predictすると落ちるのでその対策
+        self.predicting = False
 
     def str_to_tokens(self, sentence : str ):
         ids = self.sp.EncodeAsIds(sentence)
@@ -27,6 +29,7 @@ class Seq2Seq:
         return array
 
     def predict(self, text):
+        self.predicting = True
         logger.info("predict: " + text)
         start_time = datetime.datetime.now()
 
@@ -78,5 +81,9 @@ class Seq2Seq:
         
         logger.info("result: " + decoded_translation)
         logger.info("total: " + str(datetime.datetime.now() - start_time) + "s")
+        self.predicting = False
 
         return decoded_translation.replace('</s>', '')
+
+    def isPredicting(self):
+        return self.predicting
