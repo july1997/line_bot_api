@@ -7,7 +7,7 @@ from tensorflow.keras.models import load_model
 import sentencepiece as spm
 
 logger = logging.getLogger("api")
-logger.info(tf.VERSION)
+logger.info(tf.__version__)
 
 class Seq2Seq:
     def __init__(self):
@@ -16,7 +16,7 @@ class Seq2Seq:
         self.MAX_LENGTH = 170
         self.export_path = '/home/ubuntu/work/seq2seq/model'
         self.sess = tf.compat.v1.keras.backend.get_session()
-        self.model = tf.saved_model.loader.load(self.sess, [tag_constants.SERVING], self.export_path)
+        self.model = tf.compat.v1.saved_model.loader.load(self.sess, [tag_constants.SERVING], self.export_path)
         self.sig_def = self.model.signature_def['predict_output']
         self.in_enc_name = self.sig_def.inputs['enc_input'].name
         self.in_dec_name = self.sig_def.inputs['dec_input'].name
