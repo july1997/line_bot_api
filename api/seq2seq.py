@@ -102,4 +102,6 @@ class Seq2Seq_with_attention:
 
         return decoded_translation.replace('</s>', '')
     
+    def isPredicting(self):
+        return False
         
