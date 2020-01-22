@@ -1,4 +1,4 @@
-from api.seq2seq import Seq2Seq
+from api.seq2seq import *
 from api.apikey import LINE_CHANNEL_SECRET, LINE_CHANNEL_ACCESS_TOKEN
 from django.http import HttpResponseForbidden, HttpResponse
 from linebot import LineBotApi, WebhookHandler
@@ -17,8 +17,8 @@ logger = logging.getLogger("api")
 line_bot_api = LineBotApi(channel_access_token=LINE_CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(channel_secret=LINE_CHANNEL_SECRET)
 
-# Seq2Seq モデル
-model = Seq2Seq()
+# Seq2Seq with Attention モデルへ変更(Seq2Seq モデルと同時に読み込むとOOMエラーになるのでやらないこと)
+model = Seq2Seq_with_attention()
 
 # csrf 検証を無効化したい関数に @csrf_exempt を設定
 @csrf_exempt
