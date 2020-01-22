@@ -12,9 +12,9 @@ logger.info(tf.VERSION)
 class Seq2Seq:
     def __init__(self):
         self.sp = spm.SentencePieceProcessor()
-        self.sp.Load("/home/ubuntu/work/m.model")
+        self.sp.Load("/home/ubuntu/work/seq2seq/m.model")
         self.MAX_LENGTH = 170
-        self.export_path = '/home/ubuntu/work/model'
+        self.export_path = '/home/ubuntu/work/seq2seq/model'
         self.sess = tf.compat.v1.keras.backend.get_session()
         self.model = tf.saved_model.loader.load(self.sess, [tag_constants.SERVING], self.export_path)
         self.sig_def = self.model.signature_def['predict_output']
