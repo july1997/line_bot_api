@@ -5,6 +5,7 @@ import tensorflow as tf
 from tensorflow.python.saved_model import tag_constants
 from tensorflow.keras.models import load_model
 import sentencepiece as spm
+import api.normalizer as normalizer
 
 logger = logging.getLogger("api")
 logger.info(tf.__version__)
@@ -79,6 +80,9 @@ class Seq2Seq_with_attention:
     def predict(self, text):
         logger.info("predict: " + text)
         start_time = datetime.datetime.now()
+        
+        text = normalizer.twitter_normalizer(text.replace("\n", ""))
+        logger.info("normalize: " + text)
         
         encoder_input = self.str_to_tokens(text)
         decoder_input = np.zeros( ( 1 , self.MAX_LENGTH ) )
