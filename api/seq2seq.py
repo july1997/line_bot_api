@@ -104,7 +104,7 @@ class Seq2Seq_with_attention:
         logger.info("result: " + decoded_translation)
         logger.info("total: " + str(datetime.datetime.now() - start_time) + "s")
 
-        return decoded_translation.replace('</s>', '')
+        return decoded_translation.replace('</s>', '').replace('<mention>', '')
     
     def isPredicting(self):
         return False
