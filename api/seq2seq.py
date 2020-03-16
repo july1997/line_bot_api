@@ -5,12 +5,50 @@ import tensorflow as tf
 from tensorflow.python.saved_model import tag_constants
 from tensorflow.keras.models import load_model
 import sentencepiece as spm
+import api.normalizer as normalizer
+from api.models import get_reply, save_reply
 
 logger = logging.getLogger("api")
 logger.info(tf.__version__)
 
-class Seq2Seq:
+class Inference():
     def __init__(self):
+        # 一度に複数回predictすると落ちるのでその対策
+        self.predicting = False
+
+    def predict(self, text):
+        self.predicting = True
+        logger.info("predict: " + text)
+        start_time = datetime.datetime.now()
+
+        # 文章の正規化
+        text = normalizer.twitter_normalizer(text.replace("\n", ""))
+        logger.info("normalize: " + text)
+
+        # DBからリプライを検索
+        req = get_reply(text)
+        if len(req) == 0:
+            reply = self.model_predict(text)
+            save_reply(text, reply)
+            logger.info("save: " + text + " : " +  reply)
+        else:
+            reply = req[0].reply_text
+            logger.info("load: " + reply)
+
+        logger.info("result: " + reply)
+        logger.info("total: " + str(datetime.datetime.now() - start_time) + "s")
+        self.predicting = False
+        return reply
+
+    def model_predict(self, text):
+        return ""
+
+    def isPredicting(self):
+        return self.predicting
+
+class Seq2Seq(Inference):
+    def __init__(self):
+        super().__init__()
         self.sp = spm.SentencePieceProcessor()
         self.sp.Load("/home/ubuntu/work/seq2seq/m.model")
         self.MAX_LENGTH = 170
@@ -21,8 +59,6 @@ class Seq2Seq:
         self.in_enc_name = self.sig_def.inputs['enc_input'].name
         self.in_dec_name = self.sig_def.inputs['dec_input'].name
         self.out_name = self.sig_def.outputs['output'].name
-        # 一度に複数回predictすると落ちるのでその対策
-        self.predicting = False
 
     def str_to_tokens(self, sentence : str ):
         ids = self.sp.EncodeAsIds(sentence)
@@ -32,11 +68,7 @@ class Seq2Seq:
         array = np.expand_dims(array, axis=0)
         return array
 
-    def predict(self, text):
-        self.predicting = True
-        logger.info("predict: " + text)
-        start_time = datetime.datetime.now()
-
+    def model_predict(self, text):
         encoder_input = self.str_to_tokens(text)
         decoder_input = np.zeros( ( 1 , self.MAX_LENGTH ) )
         decoder_input[0, 0] = self.sp.PieceToId('<s>')
@@ -49,18 +81,12 @@ class Seq2Seq:
         for embed in decoder_input[0,1:]:
             word = self.sp.IdToPiece(int(embed)).replace('▁', ' ').replace('<unk>', ' ').replace(' ', ' ')
             decoded_translation += ' {}'.format(word)
-        
-        logger.info("result: " + decoded_translation)
-        logger.info("total: " + str(datetime.datetime.now() - start_time) + "s")
-        self.predicting = False
 
         return decoded_translation.replace('</s>', '')
 
-    def isPredicting(self):
-        return self.predicting
-
-class Seq2Seq_with_attention:
+class Seq2Seq_with_attention(Inference):
     def __init__(self):
+        super().__init__()
         self.sp = spm.SentencePieceProcessor()
         self.sp.Load("/home/ubuntu/work/attention/m.model")
         self.MAX_LENGTH = 183
@@ -76,10 +102,7 @@ class Seq2Seq_with_attention:
         array = np.expand_dims(array, axis=0)
         return array
 
-    def predict(self, text):
-        logger.info("predict: " + text)
-        start_time = datetime.datetime.now()
-        
+    def model_predict(self, text):                
         encoder_input = self.str_to_tokens(text)
         decoder_input = np.zeros( ( 1 , self.MAX_LENGTH ) )
         decoder_input[0, 0] = self.sp.PieceToId('</s>')
@@ -96,11 +119,8 @@ class Seq2Seq_with_attention:
         for output in outputs:
             dec = self.sp.DecodeIds(list(reversed([s for s in output if s != 0])))
             decoded_translation = dec.replace('<unk>', '').replace('⁇', '').replace('▁', ' ')
-        
-        logger.info("result: " + decoded_translation)
-        logger.info("total: " + str(datetime.datetime.now() - start_time) + "s")
 
-        return decoded_translation.replace('</s>', '')
+        return decoded_translation.replace('</s>', '').replace('<mention>', '')
     
     def isPredicting(self):
         return False
